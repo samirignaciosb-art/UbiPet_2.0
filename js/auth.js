@@ -77,10 +77,10 @@ window.doLogin = async function() {
     if (remember) localStorage.setItem('ubipet_persist', '1')
     else          localStorage.removeItem('ubipet_persist')
 
+    setLoadingAuth(false)
     await boot(data.user)
   } catch (e) {
     showToast(authError(e.message), 'err')
-  } finally {
     setLoadingAuth(false)
   }
 }
@@ -148,11 +148,14 @@ async function boot(user) {
 export function initAuth() {
   renderAuth()
 
-  // Restaurar sesión si eligió "mantener sesión"
+  // Restaurar sesión solo en carga inicial, no en cada login manual
+  let booted = false
   supabase.auth.onAuthStateChange(async (event, session) => {
-    if (event === 'SIGNED_IN' && session?.user && localStorage.getItem('ubipet_persist')) {
+    if (event === 'SIGNED_IN' && session?.user && localStorage.getItem('ubipet_persist') && !booted) {
+      booted = true
       await boot(session.user)
     }
+    if (event === 'SIGNED_OUT') booted = false
   })
 }
 
