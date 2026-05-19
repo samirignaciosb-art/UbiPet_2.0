@@ -156,7 +156,7 @@ async function activarPush() {
       showToast('Permiso denegado', 'warn'); btn.disabled = false; btn.textContent = 'Activar'; return
     }
     const reg = await navigator.serviceWorker.ready
-    const VAPID_KEY = 'BEl62iUYgUivxIkv69yViEuiBIa-Ib9-SkvMeAtA3LFgDzkrxZJjSgSnfckjZEqe9dkxqUVRsHh_pNrDvfpgaA'
+    const VAPID_KEY = 'BMAm5YGv7HElgfqxDhS8mw58mBM5CplRgnEym9uzMiPaQRrlYdyoqU58GVoLAwCYIAH2h_HsZyekSEoQEHgBO7M'
     const sub = await reg.pushManager.subscribe({
       userVisibleOnly: true,
       applicationServerKey: urlBase64ToUint8Array(VAPID_KEY)
