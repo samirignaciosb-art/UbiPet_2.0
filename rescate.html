@@ -383,7 +383,7 @@
         }
         await supabase.from('escaneos').insert({ perfil_id: perfilId, lat, lng })
         // Notificar al dueño
-        fetch('https://ubipetv2.samirignaciosb.workers.dev/send', {
+        fetch('https://ubipet-push.samirignaciosb.workers.dev/send', {
           method:'POST',
           headers:{'Content-Type':'application/json'},
           body: JSON.stringify({
