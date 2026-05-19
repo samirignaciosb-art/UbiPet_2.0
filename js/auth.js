@@ -145,17 +145,23 @@ async function boot(user) {
 }
 
 // ── INIT AUTH ──
-export function initAuth() {
+export async function initAuth() {
   renderAuth()
 
-  // Restaurar sesión solo en carga inicial, no en cada login manual
-  let booted = false
+  // Restaurar sesión solo si eligió "mantener sesión"
+  if (localStorage.getItem('ubipet_persist')) {
+    const { data } = await supabase.auth.getSession()
+    if (data?.session?.user) {
+      await boot(data.session.user)
+      return
+    }
+  }
+
+  // Google OAuth redirect
   supabase.auth.onAuthStateChange(async (event, session) => {
-    if (event === 'SIGNED_IN' && session?.user && localStorage.getItem('ubipet_persist') && !booted) {
-      booted = true
+    if (event === 'SIGNED_IN' && session?.user?.app_metadata?.provider === 'google') {
       await boot(session.user)
     }
-    if (event === 'SIGNED_OUT') booted = false
   })
 }
 
