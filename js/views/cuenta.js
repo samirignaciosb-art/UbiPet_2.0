@@ -130,21 +130,41 @@ async function cambiarContrasena() {
   setTimeout(() => { document.getElementById('modalPass').style.display = 'none' }, 1500)
 }
 
-function verificarEstadoPush() {
+async function verificarEstadoPush() {
   const btn = document.getElementById('btnActivarPush')
   const status = document.getElementById('pushStatus')
   if (!('Notification' in window) || !('serviceWorker' in navigator)) {
     btn.textContent = 'No disponible'; btn.disabled = true; return
   }
-  if (Notification.permission === 'granted') {
-    btn.textContent = '✅ Activadas'; btn.disabled = true
-    btn.style.background = 'var(--sage)'; status.style.display = 'block'
-    status.textContent = 'Recibirás una notificación cuando escaneen la placa de tu mascota.'
-  } else if (Notification.permission === 'denied') {
+  if (Notification.permission === 'denied') {
     btn.textContent = 'Bloqueadas'; btn.disabled = true
     status.style.display = 'block'
     status.textContent = 'Las notificaciones están bloqueadas. Actívalas desde la configuración de tu navegador.'
+    return
   }
+  // Verificar si hay subscription real activa
+  if (Notification.permission === 'granted') {
+    const reg = await navigator.serviceWorker.ready
+    const sub = await reg.pushManager.getSubscription()
+    if (sub) {
+      btn.textContent = '✅ Activadas'; btn.disabled = true
+      btn.style.background = 'var(--sage)'; status.style.display = 'block'
+      status.textContent = 'Recibirás una notificación cuando escaneen la placa de tu mascota.'
+      // Mostrar botón desactivar
+      if (!document.getElementById('btnDesactivarPush')) {
+        const btnDes = document.createElement('button')
+        btnDes.id = 'btnDesactivarPush'
+        btnDes.textContent = 'Desactivar'
+        btnDes.style.cssText = 'margin-top:8px;background:none;border:none;color:var(--error);font-size:13px;font-weight:600;cursor:pointer;font-family:Sora,sans-serif;padding:4px 0;display:block'
+        btnDes.addEventListener('click', desactivarPush)
+        btn.parentNode.insertBefore(btnDes, btn.nextSibling)
+      }
+      return
+    }
+  }
+  // Si no hay subscription, permitir activar
+  btn.textContent = 'Activar'; btn.disabled = false
+  btn.style.background = ''
 }
 
 async function activarPush() {
@@ -170,6 +190,21 @@ async function activarPush() {
   } catch(e) {
     showToast('Error al activar: ' + e.message, 'err')
     btn.disabled = false; btn.textContent = 'Activar'
+  }
+}
+
+async function desactivarPush() {
+  try {
+    const reg = await navigator.serviceWorker.ready
+    const sub = await reg.pushManager.getSubscription()
+    if (sub) await sub.unsubscribe()
+    // Eliminar de Supabase
+    await supabase.from('push_subscriptions').delete().eq('user_id', state.user.id)
+    document.getElementById('btnDesactivarPush')?.remove()
+    showToast('Notificaciones desactivadas')
+    await verificarEstadoPush()
+  } catch(e) {
+    showToast('Error al desactivar: ' + e.message, 'err')
   }
 }
 
