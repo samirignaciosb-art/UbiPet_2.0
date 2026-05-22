@@ -244,10 +244,22 @@ async function crearMascota() {
   if (!tel)    return showToast('El WhatsApp es obligatorio', 'err')
   const { data, error } = await supabase.from('perfiles').insert(payload).select().single()
   if (error) return showToast('❌ ' + error.message, 'err')
-  mascotaActual = data; modoNueva = false
-  if (croppedBlob) { try { const url = await subirFoto(croppedBlob, data.id); await supabase.from('perfiles').update({ foto_url: url }).eq('id', data.id); mascotaActual.foto_url = url } catch(e) {} }
-  document.getElementById('btnCrearFloat')?.remove()
-  await cargarMascotas(state.user)
+mascotaActual = data; modoNueva = false
+if (croppedBlob) { try { const url = await subirFoto(croppedBlob, data.id); await supabase.from('perfiles').update({ foto_url: url }).eq('id', data.id); mascotaActual.foto_url = url } catch(e) {} }
+
+// ── Asociar placa pendiente si existe ──
+const placaPendiente = sessionStorage.getItem('placa_pendiente')
+if (placaPendiente) {
+  sessionStorage.removeItem('placa_pendiente')
+  const { data: placa } = await supabase.from('placas').select('id,estado').eq('codigo', placaPendiente).maybeSingle()
+  if (placa && placa.estado !== 'activa') {
+    await supabase.from('perfiles').update({ placa_id: placa.id }).eq('id', data.id)
+    await supabase.from('placas').update({ estado: 'activa', perfil_id: data.id }).eq('id', placa.id)
+  }
+}
+
+document.getElementById('btnCrearFloat')?.remove()
+await cargarMascotas(state.user)
   const m = mascotas.find(x => x.id === data.id) || data
   seleccionarMascota(m)
   showToast('✅ ¡Mascota creada!')
