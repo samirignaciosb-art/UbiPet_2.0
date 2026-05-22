@@ -20,6 +20,18 @@
 
   <link rel="stylesheet" href="/css/styles.css" onload="document.body.classList.add('css-ready')">
   <style>body{opacity:0;transition:opacity 0.25s ease}body.ready{opacity:1}</style>
+  <!-- ── ONESIGNAL SDK ── -->
+<script src="https://cdn.onesignal.com/sdks/web/v16/OneSignalSDK.page.js" defer></script>
+<script>
+  window.OneSignalDeferred = window.OneSignalDeferred || []
+  OneSignalDeferred.push(async function(OneSignal) {
+    await OneSignal.init({
+      appId: '1b8b8929-1708-4c8e-a15a-87ed2d6a212a',
+      serviceWorkerPath: '/sw.js',
+      notifyButton: { enable: false },
+    })
+  })
+</script>
 </head>
 <body>
 
