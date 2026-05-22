@@ -1,0 +1,341 @@
+<!DOCTYPE html>
+<html lang="es" data-theme="light">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+  <meta name="theme-color" content="#ffffff">
+  <meta name="robots" content="noindex">
+  <title>UbiPet — Mascota encontrada 🐾</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;500;600;700&family=Fraunces:opsz,wght@9..144,300;9..144,700&display=swap" rel="stylesheet">
+  <link rel="icon" href="/favicon.png">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --clay:#D08C61; --clay-d:#B8734A; --clay-l:#EAC4A8; --clay-bg:#FDF4EE;
+      --sage:#5A7A57; --sage-d:#3E5C3B; --sage-l:#A8BDA6; --sage-bg:#EEF4ED;
+      --bg:#F7F6F3; --surface:#FFFFFF; --surface-2:#F2F1EE;
+      --border:rgba(0,0,0,0.08); --border-strong:rgba(0,0,0,0.14);
+      --ink:#1A1A18; --ink-soft:#4A4A46; --ink-muted:#9A9990;
+      --error:#C0392B; --error-bg:#FDECEA;
+      --warning:#D4811A; --warning-bg:#FEF3E2;
+      --success:#4A8A5A; --success-bg:#EBF5EE;
+      --shadow-sm:0 2px 8px rgba(0,0,0,0.07),0 1px 3px rgba(0,0,0,0.04);
+      --r:14px; --r-lg:20px; --r-xl:28px; --r-full:999px;
+      --ease:cubic-bezier(0.25,0.46,0.45,0.94);
+    }
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --bg:#141412; --surface:#1E1E1B; --surface-2:#252522;
+        --border:rgba(255,255,255,0.08); --border-strong:rgba(255,255,255,0.14);
+        --ink:#F0EFE8; --ink-soft:#B8B7B0; --ink-muted:#6A6960;
+        --clay-bg:rgba(208,140,97,0.10); --clay-l:rgba(208,140,97,0.25);
+        --sage-bg:rgba(90,122,87,0.12); --sage-l:rgba(90,122,87,0.25);
+        --error-bg:rgba(192,57,43,0.12); --warning-bg:rgba(212,129,26,0.12);
+        --success-bg:rgba(74,138,90,0.12);
+        --shadow:0 4px 24px rgba(0,0,0,0.40);
+      }
+    }
+    html { -webkit-text-size-adjust:100%; }
+    body { font-family:'Sora',sans-serif; background:var(--bg); color:var(--ink); min-height:100vh; padding:0 0 60px; -webkit-font-smoothing:antialiased; }
+    h1,h2,h3 { font-family:'Fraunces',serif; font-weight:700; line-height:1.2; }
+    .spinner-wrap { display:flex; align-items:center; justify-content:center; padding:100px 0; }
+    .spinner { width:28px; height:28px; border-radius:50%; border:2.5px solid var(--border-strong); border-top-color:var(--clay); animation:spin 0.7s linear infinite; }
+    @keyframes spin { to { transform:rotate(360deg); } }
+    @keyframes fadeUp { from { opacity:0; transform:translateY(12px); } to { opacity:1; transform:translateY(0); } }
+    .page { max-width:480px; margin:0 auto; padding:0 16px; animation:fadeUp 0.35s var(--ease) both; }
+    .card { background:var(--surface); border-radius:var(--r-lg); border:1px solid var(--border); overflow:hidden; margin-bottom:12px; box-shadow:var(--shadow-sm); }
+    .card-hdr { padding:14px 20px 0; font-size:11px; font-weight:700; letter-spacing:0.09em; text-transform:uppercase; color:var(--ink-muted); }
+    .hero-cover { height:160px; position:relative; overflow:hidden; }
+    .hero-cover.perdida { background:linear-gradient(135deg,#C0392B,#7D1F15); }
+    .hero-cover.ok { background:linear-gradient(135deg,var(--clay),var(--clay-d)); }
+    .hero-cover-bg { position:absolute; inset:0; width:100%; height:100%; object-fit:cover; filter:blur(10px) brightness(0.65); transform:scale(1.12); }
+    .perdida-pill { display:none; position:absolute; top:12px; left:14px; z-index:2; background:rgba(255,255,255,0.18); border:1px solid rgba(255,255,255,0.3); border-radius:var(--r-full); padding:4px 10px; align-items:center; gap:5px; }
+    .perdida-pill.show { display:flex; }
+    .perdida-dot { width:6px; height:6px; border-radius:50%; background:#FF3B30; flex-shrink:0; animation:pulse 1.2s ease-in-out infinite; }
+    @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.4} }
+    .perdida-pill span { font-size:11px; font-weight:700; color:white; letter-spacing:0.05em; }
+    .hero-av-wrap { position:absolute; bottom:-40px; left:20px; z-index:2; }
+    .hero-av { width:80px; height:80px; border-radius:50%; border:3px solid var(--surface); overflow:hidden; background:var(--surface-2); display:flex; align-items:center; justify-content:center; font-size:34px; cursor:pointer; transition:transform 0.2s; }
+    .hero-av:hover { transform:scale(1.04); }
+    .hero-av img { width:100%; height:100%; object-fit:cover; display:block; }
+    .hero-body { padding:52px 20px 20px; }
+    .hero-name { font-family:'Fraunces',serif; font-size:24px; font-weight:700; color:var(--ink); margin-bottom:4px; letter-spacing:-0.3px; }
+    .hero-meta { font-size:13px; color:var(--ink-muted); line-height:1.5; }
+    .hero-desc { font-size:14px; color:var(--ink-soft); line-height:1.6; margin-top:10px; }
+    .banner { background:var(--error-bg); padding:14px 20px; display:flex; gap:10px; }
+    .banner-title { font-size:13px; font-weight:700; color:var(--error); margin-bottom:3px; }
+    .banner-sub { font-size:12px; color:var(--ink-muted); line-height:1.4; }
+    .que-hacer { background:#FFFBF0; border-top:0.5px solid #F0E6C0; padding:0 20px; }
+    .qh-toggle { display:flex; align-items:center; justify-content:space-between; padding:12px 0; cursor:pointer; user-select:none; }
+    .qh-label { font-size:11px; font-weight:700; letter-spacing:0.08em; text-transform:uppercase; color:#92700A; }
+    .qh-arrow { font-size:11px; color:#92700A; transition:transform 0.2s; }
+    .qh-arrow.open { transform:rotate(180deg); }
+    .qh-body { display:none; padding-bottom:14px; }
+    .qh-body.open { display:block; }
+    .paso { display:flex; gap:10px; align-items:flex-start; font-size:13px; color:#5C4A1E; line-height:1.5; margin-bottom:8px; }
+    .dueno-row { display:flex; align-items:center; gap:14px; padding:16px 20px 14px; }
+    .dueno-av { width:46px; height:46px; border-radius:50%; flex-shrink:0; background:var(--clay-bg); border:1.5px solid var(--clay-l); display:flex; align-items:center; justify-content:center; font-size:22px; }
+    .dueno-name { font-size:15px; font-weight:700; color:var(--ink); }
+    .dueno-tel { font-size:13px; color:var(--ink-muted); margin-top:2px; }
+    .btns { padding:0 16px 16px; display:flex; flex-direction:column; gap:8px; }
+    .btn-wsp { width:100%; padding:15px 20px; background:#25D366; color:white; border:none; border-radius:var(--r); font-family:'Sora',sans-serif; font-size:15px; font-weight:700; cursor:pointer; display:flex; align-items:center; justify-content:center; gap:8px; transition:all 0.15s; box-shadow:0 4px 16px rgba(37,211,102,0.3); }
+    .btn-wsp:hover { background:#1ebe5a; transform:translateY(-1px); }
+    .btn-wsp:active { transform:translateY(0); }
+    .btn-call { width:100%; padding:13px 20px; background:var(--surface-2); color:var(--ink); border:1.5px solid var(--border-strong); border-radius:var(--r); font-family:'Sora',sans-serif; font-size:15px; font-weight:600; cursor:pointer; display:flex; align-items:center; justify-content:center; gap:8px; transition:all 0.15s; }
+    .btn-call:hover { background:var(--surface); transform:translateY(-1px); }
+    .tags { display:flex; flex-wrap:wrap; gap:6px; }
+    .tag { padding:5px 11px; border-radius:var(--r-full); font-size:12px; font-weight:500; }
+    .tag-v { background:var(--success-bg); color:var(--success); }
+    .tag-a { background:var(--warning-bg); color:var(--warning); }
+    .tag-r { background:var(--clay-bg); color:var(--clay-d); }
+    .tag-n { background:var(--surface-2); color:var(--ink-muted); }
+    .lightbox { display:none; position:fixed; inset:0; z-index:9999; background:rgba(0,0,0,0.88); align-items:center; justify-content:center; }
+    .lightbox.open { display:flex; }
+    .lightbox img { border-radius:50%; object-fit:cover; width:min(85vw,85vh); height:min(85vw,85vh); box-shadow:0 0 60px rgba(0,0,0,0.5); }
+    .lb-close { position:absolute; top:20px; right:20px; background:rgba(255,255,255,0.15); border:none; color:white; font-size:24px; cursor:pointer; border-radius:50%; width:40px; height:40px; display:flex; align-items:center; justify-content:center; }
+    .not-found { text-align:center; padding:80px 24px; }
+    .not-found-icon { font-size:56px; margin-bottom:16px; }
+    .not-found-title { font-family:'Fraunces',serif; font-size:24px; color:var(--ink); margin-bottom:8px; }
+    .not-found-sub { font-size:14px; color:var(--ink-muted); line-height:1.6; }
+    .footer { text-align:center; padding:20px 0 8px; font-size:13px; color:var(--ink-muted); }
+    .footer strong { color:var(--clay); }
+  </style>
+</head>
+<body>
+
+  <div id="loading" class="spinner-wrap"><div class="spinner"></div></div>
+  <div id="notFound" class="not-found" style="display:none">
+    <div class="not-found-icon">🔍</div>
+    <div class="not-found-title">Perfil no encontrado</div>
+    <div class="not-found-sub">Este código QR no está vinculado a ninguna mascota activa.</div>
+  </div>
+  <div id="content" style="display:none"></div>
+  <div class="lightbox" id="lightbox" onclick="this.classList.remove('open')">
+    <button class="lb-close">✕</button>
+    <img id="lbImg" src="" alt="">
+  </div>
+
+  <script type="module">
+    import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm'
+
+    const supabase = createClient(
+      'https://hwkyvxzbheegxynoljrw.supabase.co',
+      'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imh3a3l2eHpiaGVlZ3h5bm9sanJ3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzE5NzEyNzYsImV4cCI6MjA4NzU0NzI3Nn0.izGO-iK49rb-Rx5GRl2Rm55iDNj10sjCCq2QVEfuSXg'
+    )
+
+    const perfilId = new URLSearchParams(location.search).get('id')
+
+    if (!perfilId) {
+      document.getElementById('loading').style.display = 'none'
+      document.getElementById('notFound').style.display = 'block'
+    } else {
+      cargar(perfilId)
+    }
+
+    async function cargar(id) {
+      try {
+        const { data, error } = await supabase.rpc('get_perfil_rescate', { p_id: id })
+        document.getElementById('loading').style.display = 'none'
+        if (error || !data) { document.getElementById('notFound').style.display = 'block'; return }
+        registrarEscaneo(data, id)
+        render(data)
+      } catch(e) {
+        document.getElementById('loading').style.display = 'none'
+        document.getElementById('notFound').style.display = 'block'
+      }
+    }
+
+    function render(d) {
+      const perdida = d.esta_perdida
+      const priv = d.privacidad || {}
+      const meta = []
+      if (d.especie) meta.push(d.especie === 'perro' ? '🐶 Perro' : '🐱 Gato')
+      if (d.raza) meta.push(d.raza)
+      if (d.fecha_nacimiento) {
+        const anos = Math.floor((new Date() - new Date(d.fecha_nacimiento)) / (1000*60*60*24*365))
+        const etapa = anos < 1 ? 'Cachorro' : anos < (d.especie==='gato'?10:7) ? 'Adulto' : 'Senior'
+        meta.push(etapa + (anos >= 1 ? ' · ' + anos + ' año' + (anos!==1?'s':'') : ''))
+      }
+      if (d.peso) meta.push(d.peso + ' kg')
+
+      const vac = (Array.isArray(d.vacunas) ? d.vacunas : []).filter(v => v && v.nombre && v.nombre.trim())
+      const ale = (Array.isArray(d.alergias) ? d.alergias : []).filter(Boolean)
+      const rem = (Array.isArray(d.remedios) ? d.remedios : []).filter(Boolean)
+      const alim = d.alimentacion || {}
+      const tel = (d.telefono||'').replace(/[^0-9+]/g,'')
+
+      document.getElementById('content').style.display = 'block'
+      document.getElementById('content').innerHTML = `
+        <div class="page">
+          <div class="card">
+            <div class="hero-cover ${perdida?'perdida':'ok'}">
+              ${d.foto_url ? '<img class="hero-cover-bg" src="' + d.foto_url + '" alt="">' : ''}
+              <div class="perdida-pill ${perdida?'show':''}">
+                <div class="perdida-dot"></div>
+                <span>🚨 MASCOTA PERDIDA</span>
+              </div>
+              <div class="hero-av-wrap">
+                <div class="hero-av" id="heroAv">
+                  ${d.foto_url ? '<img src="' + d.foto_url + '" alt="' + (d.nombre_mascota||'') + '">' : (perdida ? '🚨' : d.especie==='gato' ? '🐱' : '🐶')}
+                </div>
+              </div>
+            </div>
+            <div class="hero-body">
+              <div class="hero-name">${d.nombre_mascota || (perdida?'¡Mascota perdida!':'Mascota encontrada')}</div>
+              <div class="hero-meta">${meta.join(' · ')}</div>
+              ${d.descripcion ? '<div class="hero-desc">' + d.descripcion + '</div>' : ''}
+            </div>
+          </div>
+
+          ${perdida ? `
+          <div class="card">
+            <div class="banner">
+              <span style="font-size:18px;flex-shrink:0">🚨</span>
+              <div>
+                <div class="banner-title">Esta mascota está reportada como perdida</div>
+                <div class="banner-sub">Su dueño la está buscando. Por favor contáctalo de inmediato.</div>
+              </div>
+            </div>
+            <div class="que-hacer">
+              <div class="qh-toggle" id="qhToggle">
+                <span class="qh-label">¿Qué hago si la encontré?</span>
+                <span class="qh-arrow" id="qhArrow">▼</span>
+              </div>
+              <div class="qh-body" id="qhBody">
+                <div class="paso"><span>1️⃣</span><span>Mantén a la mascota en un lugar seguro y tranquilo.</span></div>
+                <div class="paso"><span>2️⃣</span><span>Toca el botón verde para enviar tu ubicación GPS al dueño por WhatsApp.</span></div>
+                <div class="paso"><span>3️⃣</span><span>Si no tienes WhatsApp, usa el botón de llamada directa.</span></div>
+                <div class="paso"><span>4️⃣</span><span>No la dejes sola hasta que llegue el dueño.</span></div>
+              </div>
+            </div>
+          </div>` : ''}
+
+          <div class="card">
+            <div class="card-hdr">Contactar al dueño</div>
+            <div class="dueno-row">
+              <div class="dueno-av">👤</div>
+              <div>
+                <div class="dueno-name">${d.nombre_dueno || '—'}</div>
+                <div class="dueno-tel">${d.telefono || '—'}</div>
+              </div>
+            </div>
+            <div class="btns">
+              <button class="btn-wsp" id="btnWsp">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="white"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z"/><path d="M12 0C5.373 0 0 5.373 0 12c0 2.124.558 4.118 1.532 5.845L.057 23.928l6.266-1.641A11.944 11.944 0 0012 24c6.627 0 12-5.373 12-12S18.627 0 12 0zm0 21.818a9.784 9.784 0 01-5.012-1.374l-.36-.214-3.722.976.993-3.624-.235-.372A9.789 9.789 0 012.182 12C2.182 6.58 6.58 2.182 12 2.182S21.818 6.58 21.818 12 17.42 21.818 12 21.818z"/></svg>
+                📍 Enviar mi ubicación por WhatsApp
+              </button>
+              <button class="btn-call" id="btnCall">📞 Llamar al dueño</button>
+            </div>
+          </div>
+
+          ${priv.direccion && d.direccion_dueno ? `
+          <div class="card">
+            <div class="card-hdr">Dirección del dueño</div>
+            <div style="padding:14px 20px">
+              <div style="font-size:14px;color:var(--ink-soft)">${d.direccion_dueno}</div>
+              <a href="https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(d.direccion_dueno)}" target="_blank"
+                style="display:inline-flex;align-items:center;gap:6px;margin-top:10px;color:var(--clay);font-size:14px;font-weight:600">
+                🗺️ Abrir en Maps
+              </a>
+            </div>
+          </div>` : ''}
+
+          ${perdida && priv.salud !== false && (vac.length || ale.length || rem.length || alim.tipo) ? `
+          <div class="card">
+            <div class="card-hdr">Información médica</div>
+            <div style="padding:14px 20px;display:flex;flex-direction:column;gap:14px">
+              ${vac.length ? '<div><div style="font-size:12px;font-weight:600;color:var(--ink-muted);margin-bottom:7px">💉 Vacunas</div><div class="tags">' + vac.map(v => '<span class="tag tag-v">✓ ' + v.nombre + (v.fecha ? ' · ' + new Date(v.fecha).toLocaleDateString('es-CL',{month:'short',year:'numeric'}) : '') + '</span>').join('') + '</div></div>' : ''}
+              <div>
+                <div style="font-size:12px;font-weight:600;color:var(--ink-muted);margin-bottom:7px">⚠️ Alergias</div>
+                <div class="tags">${ale.length ? ale.map(a => '<span class="tag tag-a">⚠ ' + a + '</span>').join('') : '<span class="tag tag-n">Ninguna conocida</span>'}</div>
+              </div>
+              ${rem.length ? '<div><div style="font-size:12px;font-weight:600;color:var(--ink-muted);margin-bottom:7px">💊 Remedios</div><div class="tags">' + rem.map(r => '<span class="tag tag-r">💊 ' + r + '</span>').join('') + '</div></div>' : ''}
+            </div>
+          </div>` : ''}
+
+          ${perdida && priv.clinica !== false && d.clinica_nombre ? `
+          <div class="card">
+            <div class="card-hdr">Veterinaria de confianza</div>
+            <div style="padding:14px 20px">
+              <div style="font-size:15px;font-weight:600;color:var(--ink)">${d.clinica_nombre}</div>
+              ${d.clinica_telefono ? '<a href="tel:' + d.clinica_telefono + '" style="display:inline-flex;align-items:center;gap:6px;margin-top:8px;color:var(--clay);font-weight:600;font-size:14px">📞 ' + d.clinica_telefono + '</a>' : ''}
+            </div>
+          </div>` : ''}
+
+          <div class="footer">🐾 Protegido por <strong>UbiPet</strong></div>
+        </div>
+      `
+
+      if (d.foto_url) {
+        document.getElementById('heroAv').addEventListener('click', () => {
+          document.getElementById('lbImg').src = d.foto_url
+          document.getElementById('lightbox').classList.add('open')
+        })
+      }
+
+      document.getElementById('qhToggle') && document.getElementById('qhToggle').addEventListener('click', () => {
+        document.getElementById('qhBody').classList.toggle('open')
+        document.getElementById('qhArrow').classList.toggle('open')
+      })
+
+      document.getElementById('btnWsp').addEventListener('click', function() {
+        const btn = this
+        btn.innerHTML = '⏳ Obteniendo ubicación...'; btn.disabled = true
+        const enviar = (lat, lng) => {
+          const msg = lat
+            ? '🐾 *¡Encontré a ' + d.nombre_mascota + '!*\n\n📍 *Mi ubicación:*\nhttps://maps.google.com/maps?q=' + lat + ',' + lng + '\n\n¡Avísame cuando vengas! 🙏'
+            : '🐾 ¡Encontré a ' + d.nombre_mascota + '! No pude compartir GPS. Por favor contáctame.'
+          btn.disabled = false
+          btn.innerHTML = '📍 Enviar mi ubicación por WhatsApp'
+          window.location.href = 'https://wa.me/' + tel + '?text=' + encodeURIComponent(msg)
+        }
+        if (navigator.geolocation) {
+          navigator.geolocation.getCurrentPosition(
+            p => enviar(p.coords.latitude.toFixed(6), p.coords.longitude.toFixed(6)),
+            () => enviar(null, null),
+            { enableHighAccuracy:true, timeout:10000, maximumAge:0 }
+          )
+        } else { enviar(null, null) }
+      })
+
+      document.getElementById('btnCall').addEventListener('click', () => {
+        window.location.href = 'tel:' + tel
+      })
+    }
+
+    async function registrarEscaneo(d, perfilId) {
+      try {
+        let lat = null, lng = null
+
+        if (navigator.geolocation) {
+          await new Promise(resolve => {
+            navigator.geolocation.getCurrentPosition(
+              p => { lat = p.coords.latitude; lng = p.coords.longitude; resolve() },
+              () => resolve(),
+              { timeout: 5000 }
+            )
+          })
+        }
+
+        await supabase.from('escaneos').insert({ perfil_id: perfilId, lat, lng })
+
+        fetch('https://hwkyvxzbheegxynoljrw.supabase.co/functions/v1/notificar-escaneo', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            user_id: d.user_id,
+            nombre_mascota: d.nombre_mascota,
+            lat,
+            lng
+          })
+        }).catch(() => {})
+
+      } catch(e) {
+        console.error(e)
+      }
+    }
+
+  </script>
+</body>
+</html>
