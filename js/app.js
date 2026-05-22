@@ -54,13 +54,17 @@ export function launchApp(user) {
   document.getElementById('menu-user-email').textContent = user.email || ''
 
   // Mostrar botón admin si corresponde
-  // Los admins están en la tabla admins de Supabase
-  // auth.js se encarga de setear state.isAdmin
   if (state.isAdmin) {
     document.getElementById('menu-admin').style.display = 'flex'
   }
 
   initNetwork()
+
+  // ── ONESIGNAL: vincular este dispositivo al dueño ──
+  setTimeout(() => {
+    window.initOneSignalUser?.(user.id)
+  }, 1500)
+
   navigate('perfil')
 }
 
