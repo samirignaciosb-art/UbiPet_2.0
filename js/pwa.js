@@ -53,9 +53,7 @@ window.addEventListener('ubipet:login', async (e) => {
 
       // Vincular el user_id de Supabase como External ID de OneSignal
       // Esto permite enviar notificaciones solo a este usuario específico
-      const currentExtId = await OneSignal.User.getExternalId()
-      if (currentExtId !== user.id) {
-        await OneSignal.login(user.id)
+     await OneSignal.login(userId)
         console.log('✅ OneSignal: External ID vinculado:', user.id)
       } else {
         console.log('✅ OneSignal: External ID ya estaba vinculado')
