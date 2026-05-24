@@ -99,7 +99,7 @@ export async function renderRescate(container, params = {}) {
           <span class="qh-arrow" id="qhArrow">▼</span>
         </div>
         <div class="qh-body" id="qhBody">
-          <div class="paso"><span>1️⃣</span><span>Mantén a la mascota en un lugar seguro y tranquilo.</span></div>
+          <div class="paso"><span>1️⃣</span><span>Mantén a la mascota en un lugar seguro y tranquila.</span></div>
           <div class="paso"><span>2️⃣</span><span>Toca el botón verde de abajo para enviar tu ubicación GPS por WhatsApp al dueño.</span></div>
           <div class="paso"><span>3️⃣</span><span>Si no tiene WhatsApp, llama directo con el botón de teléfono.</span></div>
           <div class="paso"><span>4️⃣</span><span>No la dejes sola hasta que llegue el dueño.</span></div>
