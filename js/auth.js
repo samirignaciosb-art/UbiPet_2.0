@@ -143,9 +143,7 @@ function iniciarOneSignal(userId) {
     try {
       await OneSignal.Notifications.requestPermission()
       if (!OneSignal.Notifications.permission) return
-      const currentExtId = await OneSignal.User.getExternalId()
-      if (currentExtId !== userId) {
-        await OneSignal.login(userId)
+     await OneSignal.login(userId)
         console.log('✅ OneSignal vinculado:', userId)
       }
     } catch(e) {
