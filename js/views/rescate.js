@@ -68,8 +68,6 @@ export async function renderRescate(container, params = {}) {
 
 <div id="r-content" style="display:none">
   <div style="max-width:480px;margin:0 auto;padding:0 0 48px;animation:fadeUp 0.35s var(--ease) both">
-
-    <!-- HERO -->
     <div class="r-card">
       <div class="r-cover" id="rCover">
         <div class="perdida-pill" id="rPerdidaPill"><div class="perdida-dot"></div><span>🚨 MASCOTA PERDIDA</span></div>
@@ -83,8 +81,6 @@ export async function renderRescate(container, params = {}) {
         <div id="rDesc"></div>
       </div>
     </div>
-
-    <!-- URGENTE -->
     <div id="rUrgente" class="r-card" style="display:none">
       <div class="r-banner">
         <span style="font-size:16px;flex-shrink:0">🚨</span>
@@ -106,8 +102,6 @@ export async function renderRescate(container, params = {}) {
         </div>
       </div>
     </div>
-
-    <!-- CONTACTO -->
     <div class="r-card">
       <div class="r-card-hdr">Contactar al dueño</div>
       <div class="dueno-row">
@@ -125,8 +119,6 @@ export async function renderRescate(container, params = {}) {
         <button class="btn-call" id="btnLlamar">📞 Llamar al dueño</button>
       </div>
     </div>
-
-    <!-- DIRECCIÓN -->
     <div class="r-card" id="rDireccion" style="display:none">
       <div class="r-card-hdr">Dirección del dueño</div>
       <div style="padding:14px 20px">
@@ -134,14 +126,10 @@ export async function renderRescate(container, params = {}) {
         <a id="btnMapa" href="#" target="_blank" style="display:inline-flex;align-items:center;gap:6px;margin-top:10px;color:var(--clay);font-size:14px;font-weight:600">🗺️ Abrir en Maps</a>
       </div>
     </div>
-
-    <!-- SALUD -->
     <div class="r-card" id="rSalud" style="display:none">
       <div class="r-card-hdr">Información médica</div>
       <div style="padding:14px 20px" id="rSaludContenido"></div>
     </div>
-
-    <!-- CLÍNICA -->
     <div class="r-card" id="rClinica" style="display:none">
       <div class="r-card-hdr">Veterinaria de confianza</div>
       <div style="padding:14px 20px">
@@ -149,16 +137,12 @@ export async function renderRescate(container, params = {}) {
         <div style="margin-top:6px" id="rClinicaTel"></div>
       </div>
     </div>
-
-    <!-- FOOTER -->
     <div style="text-align:center;padding:16px 0;color:var(--ink-muted);font-size:13px">
       🐾 Protegido por <strong style="color:var(--clay)">UbiPet</strong>
     </div>
-
   </div>
 </div>
 
-<!-- LIGHTBOX -->
 <div class="foto-lb" id="fotoLb" onclick="this.classList.remove('open')">
   <button class="foto-lb-close" onclick="document.getElementById('fotoLb').classList.remove('open')">✕</button>
   <img id="fotoLbImg" src="" alt="">
@@ -174,15 +158,12 @@ export async function renderRescate(container, params = {}) {
   try {
     const { data, error } = await supabase.rpc('get_perfil_rescate', { p_id: perfilId })
     document.getElementById('r-loading').style.display = 'none'
-
     if (error || !data) {
       document.getElementById('r-notfound').style.display = 'block'
       return
     }
-
     registrarEscaneo(data, perfilId)
     renderRescateData(data)
-
   } catch(e) {
     document.getElementById('r-loading').style.display = 'none'
     document.getElementById('r-notfound').style.display = 'block'
@@ -193,11 +174,9 @@ function renderRescateData(data) {
   document.getElementById('r-content').style.display = 'block'
   const perdida = data.esta_perdida
 
-  // Cover
   document.getElementById('rCover').classList.add(perdida ? 'perdida' : 'ok')
   if (perdida) document.getElementById('rPerdidaPill').style.display = 'flex'
 
-  // Nombre y meta
   document.getElementById('rNombre').textContent = data.nombre_mascota || (perdida ? '¡Mascota perdida!' : 'Mascota encontrada')
   const meta = []
   if (data.especie) meta.push(data.especie === 'perro' ? '🐶 Perro' : '🐱 Gato')
@@ -213,7 +192,6 @@ function renderRescateData(data) {
   document.getElementById('rMeta').textContent = meta.join(' · ')
   if (data.descripcion) document.getElementById('rDesc').innerHTML = `<div class="r-desc">${data.descripcion}</div>`
 
-  // Foto
   const av = document.getElementById('rAvatar')
   if (data.foto_url) {
     const bgImg = document.createElement('img')
@@ -230,11 +208,9 @@ function renderRescateData(data) {
     av.textContent = perdida ? '🚨' : '🐾'
   }
 
-  // Contacto
   document.getElementById('rDuenoNombre').textContent = data.nombre_dueno || '—'
   document.getElementById('rDuenoTel').textContent = data.telefono || '—'
 
-  // Urgente
   if (perdida) {
     document.getElementById('rUrgente').style.display = 'block'
     document.getElementById('qhToggle').addEventListener('click', () => {
@@ -245,21 +221,18 @@ function renderRescateData(data) {
 
   const priv = data.privacidad || {}
 
-  // Dirección
   if (priv.direccion === true && data.direccion_dueno) {
     document.getElementById('rDireccion').style.display = 'block'
     document.getElementById('rDireccionTxt').textContent = data.direccion_dueno
     document.getElementById('btnMapa').href = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(data.direccion_dueno)}`
   }
 
-  // Salud
   if (perdida && priv.salud !== false) {
     const inv = v => !v || ['no','no tiene','ninguno','ninguna','-'].includes(String(v).toLowerCase().trim())
     const vac = (Array.isArray(data.vacunas) ? data.vacunas : []).filter(v => v?.nombre && !inv(v.nombre))
     const ale = (Array.isArray(data.alergias) ? data.alergias : []).filter(v => !inv(v))
     const rem = (Array.isArray(data.remedios) ? data.remedios : []).filter(v => !inv(v))
     const alim = data.alimentacion || {}
-
     if (vac.length || ale.length || rem.length || alim.tipo) {
       document.getElementById('rSalud').style.display = 'block'
       let html = ''
@@ -274,24 +247,20 @@ function renderRescateData(data) {
     }
   }
 
-  // Clínica
   if (perdida && priv.clinica !== false && data.clinica_nombre) {
     document.getElementById('rClinica').style.display = 'block'
     document.getElementById('rClinicaNombre').textContent = data.clinica_nombre
     if (data.clinica_telefono) document.getElementById('rClinicaTel').innerHTML = `<a href="tel:${data.clinica_telefono}" style="color:var(--clay);font-weight:600">📞 ${data.clinica_telefono}</a>`
   }
 
-  // Botones
   document.getElementById('btnWsp').addEventListener('click', function() {
     this.innerHTML = '⏳ Obteniendo ubicación...'; this.disabled = true
     const btn = this
     const tel = data.telefono?.replace(/[^0-9]/g,'')
-
     if (!navigator.geolocation) {
       window.location.href = `https://wa.me/${tel}?text=${encodeURIComponent('🐾 ¡Encontré a '+data.nombre_mascota+'! Por favor contáctame.')}`
       return
     }
-
     navigator.geolocation.getCurrentPosition(
       pos => {
         const lat = pos.coords.latitude.toFixed(6), lng = pos.coords.longitude.toFixed(6)
@@ -312,7 +281,6 @@ function renderRescateData(data) {
   })
 }
 
-// ── REGISTRAR ESCANEO + NOTIFICAR AL DUEÑO VÍA ONESIGNAL ──
 async function registrarEscaneo(data, perfilId) {
   try {
     let lat = null, lng = null
@@ -327,17 +295,12 @@ async function registrarEscaneo(data, perfilId) {
       })
     }
 
-    // Guardar escaneo en Supabase
     await supabase.from('escaneos').insert({ perfil_id: perfilId, lat, lng })
 
-    // Construir mensaje según si hay ubicación o no
     const hora = new Date().toLocaleTimeString('es-CL', { hour: '2-digit', minute: '2-digit' })
     const title = `🐾 ¡Escanearon la placa de ${data.nombre_mascota}!`
-    const body = lat
-      ? `📍 Ubicación disponible · ${hora}`
-      : `Alguien encontró a tu mascota · ${hora}`
+    const body = lat ? `📍 Ubicación disponible · ${hora}` : `Alguien encontró a tu mascota · ${hora}`
 
-    // Notificar al dueño por OneSignal usando su user_id como External ID
     await fetch('https://onesignal.com/api/v1/notifications', {
       method: 'POST',
       headers: {
@@ -346,23 +309,13 @@ async function registrarEscaneo(data, perfilId) {
       },
       body: JSON.stringify({
         app_id: ONESIGNAL_APP_ID,
-        // Filtrar SOLO al dueño por su user_id de Supabase
-        include_aliases: {
-          external_id: [data.user_id]
-        },
+        include_aliases: { external_id: [data.user_id] },
         target_channel: 'push',
         headings: { es: title, en: title },
         contents: { es: body, en: body },
-        url: 'https://app.ubipet.shop',
-        // Ícono de la app
-        chrome_web_icon: 'https://app.ubipet.shop/icon-192.png',
-        // Datos extra por si quieres manejarlos en el SW
-        data: {
-          perfil_id: perfilId,
-          lat,
-          lng,
-          nombre_mascota: data.nombre_mascota,
-        }
+        url: 'https://ubipet-2-0.pages.dev',
+        chrome_web_icon: 'https://ubipet-2-0.pages.dev/icon-192.png',
+        data: { perfil_id: perfilId, lat, lng, nombre_mascota: data.nombre_mascota }
       })
     })
 
